@@ -1,0 +1,63 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: S3 Image Resizer with new bucket and inline IAM policies
+Resources:
+  MyImageUploadBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: my-image-upload-bucket-20250316
+    Metadata:
+      SamResourceId: MyImageUploadBucket
+  ImageResizerFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: lambda.amazonaws.com
+          Action: sts:AssumeRole
+      Path: /
+      Policies:
+      - PolicyName: S3AccessPolicyForImageResizer
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - s3:GetObject
+            - s3:PutObject
+            Resource: arn:aws:s3:::my-image-upload-bucket-20250316/*
+          - Effect: Allow
+            Action:
+            - s3:ListBucket
+            Resource: arn:aws:s3:::my-image-upload-bucket-20250316
+    Metadata:
+      SamResourceId: ImageResizerFunctionRole
+  ImageResizerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://my-image-upload-bucket-20250316/c794d3ccf55933bae228eda1c134bef7
+      Handler: lambda_function.lambda_handler
+      Runtime: python3.13
+      MemorySize: 256
+      Timeout: 30
+      Role:
+        Fn::GetAtt:
+        - ImageResizerFunctionRole
+        - Arn
+      Events:
+        S3Event:
+          Type: S3
+          Properties:
+            Bucket:
+              Ref: MyImageUploadBucket
+            Events: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                - Name: suffix
+                  Value: .jpg
+    Metadata:
+      SamResourceId: ImageResizerFunction

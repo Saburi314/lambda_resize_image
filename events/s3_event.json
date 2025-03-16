@@ -1,0 +1,15 @@
+{
+    "Records": [
+      {
+        "s3": {
+          "bucket": {
+            "name": "my-image-upload-bucket-20250315"
+          },
+          "object": {
+            "key": "real_hato_sabure_240x164.jpg"
+          }
+        }
+      }
+    ]
+  }
+  
