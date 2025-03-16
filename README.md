@@ -1,0 +1,2 @@
+lambda cloud formation学習用　リポジトリ
+s3に上げた画像をリサイズするlambda関数を作成
